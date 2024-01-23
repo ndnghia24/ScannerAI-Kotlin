@@ -1,14 +1,19 @@
 package com.example.scannerai.AnalyzeFeatures.fragments
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
@@ -24,6 +29,10 @@ class StorageImagesFragment : Fragment() {
         recyclerView = view.findViewById(R.id.rcv_all_images)
         val layoutManager = GridLayoutManager(context, 4)
         recyclerView?.setLayoutManager(layoutManager)
+
+        recyclerView?.setHasFixedSize(true);
+        recyclerView?.setItemViewCacheSize(30);
+
         if (hasReadExternalStoragePermission()) {
             imageAdapter = ImageAdapter(view.context, allImages)
             recyclerView?.setAdapter(imageAdapter)
@@ -76,9 +85,9 @@ class StorageImagesFragment : Fragment() {
     }
 
     private fun requestReadExternalStoragePermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // Hiển thị một thông báo giải thích tại sao ứng dụng cần quyền này
+                // Show an explanation to the user as to why your app needs the permission
             } else {
                 requestPermissions(
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
@@ -86,14 +95,21 @@ class StorageImagesFragment : Fragment() {
                 )
             }
         } else {
-            if (shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)) {
-                // Hiển thị một thông báo giải thích tại sao ứng dụng cần quyền này
+            if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // Show an explanation to the user as to why your app needs the permission
             } else {
                 requestPermissions(
-                    arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_MEDIA_LOCATION),
                     READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE
                 )
             }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !Environment.isExternalStorageManager()) {
+            val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+            val uri = Uri.fromParts("package", requireActivity().packageName, null)
+            intent.data = uri
+            startActivity(intent)
         }
     }
 

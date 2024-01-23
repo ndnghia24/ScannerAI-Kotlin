@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.Log
@@ -63,8 +64,6 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .build()
 
-
-    private var isFlashOn = false
 
     // ------------------------ Activity Life Cycle ------------------------
     @SuppressLint("MissingInflatedId")
@@ -180,17 +179,8 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
 
     private fun SetUpTopButtons() {
         val btnFlash = findViewById<ImageButton>(R.id.btnFlash)
-        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        val cameraId = cameraManager.cameraIdList[0]
 
-        btnFlash.setOnClickListener {
-            isFlashOn = !isFlashOn
-            try {
-                cameraManager.setTorchMode(cameraId, isFlashOn)
-            } catch (e: CameraAccessException) {
-                e.printStackTrace()
-            }
-        }
+        btnFlash.setOnClickListener {}
 
         val btnAr = findViewById<ImageButton>(R.id.btnAr)
         btnAr.setOnClickListener {
@@ -198,6 +188,7 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
             startActivity(intent)
         }
     }
+
     private fun SetUpOptionsList() {
         val adapter: RecyclerView.Adapter<*> = OptionsAdapter()
         (adapter as OptionsAdapter).setOnOptionClickListener(this)

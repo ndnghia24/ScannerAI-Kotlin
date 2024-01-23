@@ -1,5 +1,6 @@
 package com.example.scannerai.AnalyzeFeatures.analyzer
 
+import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -16,8 +17,14 @@ import com.example.scannerai.AnalyzeFeatures.helper.DeviceMetric
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.coroutineScope
 
-class TextAnalyzer(var textView: TextView, var startReg: Button, var preview: PreviewView) :
+class TextAnalyzer(
+    var textView: TextView? = null,
+    var startReg: Button? = null,
+    var preview: PreviewView? = null) :
+
     ImageAnalysis.Analyzer {
     private var isAnalysisEnabled = false
     private val recognizer = TextRecognition.getClient(
@@ -26,7 +33,7 @@ class TextAnalyzer(var textView: TextView, var startReg: Button, var preview: Pr
     private val mainHandler = Handler(Looper.getMainLooper())
 
     init {
-        startReg.setOnClickListener { v: View? -> enableAnalysis() }
+        startReg?.setOnClickListener { v: View? -> enableAnalysis() }
     }
 
     fun enableAnalysis() {
@@ -50,9 +57,9 @@ class TextAnalyzer(var textView: TextView, var startReg: Button, var preview: Pr
                 .addOnSuccessListener { text -> // Task completed successfully
                     val resultText = text.text
                     mainHandler.post { // Update TextView
-                        textView.text = resultText
+                        textView?.text = resultText
                     }
-                    ChangePreviewViewHeight(preview, DeviceMetric.PREVIEWVVIEWDEFAULTHEIGHT)
+                    preview?.let { ChangePreviewViewHeight(it, DeviceMetric.PREVIEWVVIEWDEFAULTHEIGHT) }
                     disableAnalysis()
                 }
                 .addOnFailureListener { e -> Log.d("TEXT_RECOGNITION", "Detection failed", e) }
@@ -61,5 +68,23 @@ class TextAnalyzer(var textView: TextView, var startReg: Button, var preview: Pr
             Log.d("TEXT_RECOGNITION", "mediaImage is null")
             imageProxy.close()
         }
+    }
+
+    suspend fun analyzeBitmapImage(inputImage: Bitmap): String = coroutineScope {
+        val resultText = CompletableDeferred<String>()
+
+        Log.d("TEXT_RECOGNITION", "analyzeBitmapImage: ${inputImage.height} x ${inputImage.width}")
+
+        recognizer.process(InputImage.fromBitmap(inputImage, 0))
+            .addOnSuccessListener { text ->
+                resultText.complete(text.text)
+                Log.d("TEXT_RECOGNITION", "${text.text}")
+            }
+            .addOnFailureListener { e ->
+                Log.d("TEXT_RECOGNITION", "Detection failed", e)
+                resultText.complete("No text detected")
+            }
+
+        resultText.await()
     }
 }

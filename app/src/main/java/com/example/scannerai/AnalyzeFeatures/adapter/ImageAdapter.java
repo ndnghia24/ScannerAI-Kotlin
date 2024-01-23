@@ -1,6 +1,7 @@
 package com.example.scannerai.AnalyzeFeatures.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.scannerai.AnalyzeFeatures.activities.ImageProcessActivity;
 import com.example.scannerai.R;
 
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
-
     private final Context context;
     private final List<String> imagePaths;
 
@@ -38,7 +39,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         // Load image into ImageView using Glide or any other image loading library
         Glide.with(context)
                 .load(imagePath)
+                .override(100, 100)
                 .into(holder.imageView);
+
+        holder.imageView.setOnClickListener(v -> {
+            Intent intent = new Intent(this.context, ImageProcessActivity.class);
+            intent.putExtra("imageUri", imagePath);
+            context.startActivity(intent);
+        });
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.example.scannerai.AnalyzeFeatures.activities
+package com.example.scannerai
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -14,10 +14,15 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.scannerai.AnalyzeFeatures.analyzer.ImageLabelAnalyzer
 import com.example.scannerai.AnalyzeFeatures.analyzer.TextAnalyzer
-import com.example.scannerai.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+import com.google.zxing.BinaryBitmap
+import com.google.zxing.LuminanceSource
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.HybridBinarizer
 
 class ImageProcessActivity : AppCompatActivity() {
 
@@ -88,7 +93,9 @@ class ImageProcessActivity : AppCompatActivity() {
         }
 
         btnQrScan.setOnClickListener {
-            Toast.makeText(this, "Scanning...", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                processQRCodeDetection()
+            }
         }
     }
 
@@ -158,6 +165,42 @@ class ImageProcessActivity : AppCompatActivity() {
             } else {
                 resultTextView.setText(resultText!!.substring(0, maxLengthSize-3) + "...")
             }
+        }
+    }
+
+    suspend fun processQRCodeDetection() = lifecycleScope.launch(Dispatchers.IO) {
+        val bitmapImage = Glide.with(this@ImageProcessActivity)
+            .asBitmap()
+            .load(imageUri)
+            .submit()
+            .get()
+
+        var resultText: String? = null
+        resultText = decodeQRImage(bitmapImage)
+
+        Log.d("QRCodeAnalyzer: ", resultText ?: "No QR code detected")
+        withContext(Dispatchers.Main) {
+            if (resultText != null) {
+                resultTextView.setText(resultText)
+            } else {
+                resultTextView.setText("No QR code detected")
+            }
+        }
+    }
+
+    fun decodeQRImage(bitmap: Bitmap): String? {
+        val width = bitmap.width
+        val height = bitmap.height
+        val pixels = IntArray(width * height)
+        bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+        val source: LuminanceSource = RGBLuminanceSource(width, height, pixels)
+        val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+        return try {
+            val result = MultiFormatReader().decode(binaryBitmap)
+            result.text
+        } catch (e: Exception) {
+            Log.e("QRCode", "Error decoding QR Code: ${e.message}")
+            null
         }
     }
 }

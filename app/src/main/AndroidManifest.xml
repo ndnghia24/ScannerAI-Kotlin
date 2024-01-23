@@ -45,7 +45,7 @@
         </activity>
 
         <activity
-            android:name=".AnalyzeFeatures.activities.ImageProcessActivity"
+            android:name=".ImageProcessActivity"
             android:exported="true">
         </activity>
 

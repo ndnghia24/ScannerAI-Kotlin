@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.scannerai.AnalyzeFeatures.activities.ImageProcessActivity;
+import com.example.scannerai.ImageProcessActivity;
 import com.example.scannerai.R;
 
 import java.util.List;

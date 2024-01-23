@@ -46,7 +46,7 @@
             android:layout_marginTop="16dp"
             android:text="Scan AI"
             android:fontFamily="@font/poppins_light"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:textSize="30sp"
             app:layout_constraintEnd_toEndOf="@+id/optionList"
             app:layout_constraintLeft_toLeftOf="parent"

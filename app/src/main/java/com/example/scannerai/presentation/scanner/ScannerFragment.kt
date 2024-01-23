@@ -203,6 +203,7 @@ class ScannerFragment: Fragment() {
 
             detectedResult.getOrNull()?.let {
                 Log.d("ScannerFragment", "Detected: ${it.label}, ${frame.frame}, ${it.centerCoordinate}")
+                it.label = it.label.replace("\n", " ")
                 return DetectedText(it, frame.frame)
             }
             return null

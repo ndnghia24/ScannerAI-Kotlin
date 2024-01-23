@@ -25,5 +25,4 @@
         android:textColor="@color/white"
         android:textSize="35sp"/>
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>

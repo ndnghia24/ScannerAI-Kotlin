@@ -3,7 +3,11 @@ package com.example.scannerai
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
@@ -13,6 +17,7 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
@@ -38,6 +43,7 @@ import com.example.scannerai.AnalyzeFeatures.helper.Animation
 import com.example.scannerai.AnalyzeFeatures.helper.Constraint
 import com.example.scannerai.AnalyzeFeatures.helper.DeviceMetric
 import com.example.scannerai.AnalyzeFeatures.helper.GraphicOverlay
+import com.example.scannerai.presentation.TranslateARActivity
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
 
@@ -57,6 +63,9 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .build()
 
+
+    private var isFlashOn = false
+
     // ------------------------ Activity Life Cycle ------------------------
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +76,7 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
         topper = findViewById(R.id.topper)
         scrollView = findViewById(R.id.scrollView)
         requestCameraUsingPermission()
+        SetUpTopButtons()
         SetUpOptionsList()
         addFragment(StorageImagesFragment())
         SetPreviewViewHeight()
@@ -168,6 +178,26 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
         })
     }
 
+    private fun SetUpTopButtons() {
+        val btnFlash = findViewById<ImageButton>(R.id.btnFlash)
+        val cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val cameraId = cameraManager.cameraIdList[0]
+
+        btnFlash.setOnClickListener {
+            isFlashOn = !isFlashOn
+            try {
+                cameraManager.setTorchMode(cameraId, isFlashOn)
+            } catch (e: CameraAccessException) {
+                e.printStackTrace()
+            }
+        }
+
+        val btnAr = findViewById<ImageButton>(R.id.btnAr)
+        btnAr.setOnClickListener {
+            val intent = Intent(this, TranslateARActivity::class.java)
+            startActivity(intent)
+        }
+    }
     private fun SetUpOptionsList() {
         val adapter: RecyclerView.Adapter<*> = OptionsAdapter()
         (adapter as OptionsAdapter).setOnOptionClickListener(this)

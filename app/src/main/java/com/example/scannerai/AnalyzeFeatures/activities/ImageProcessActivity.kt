@@ -3,6 +3,7 @@ package com.example.scannerai.AnalyzeFeatures.activities
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
@@ -11,6 +12,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.example.scannerai.AnalyzeFeatures.analyzer.ImageLabelAnalyzer
 import com.example.scannerai.AnalyzeFeatures.analyzer.TextAnalyzer
 import com.example.scannerai.R
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +23,7 @@ class ImageProcessActivity : AppCompatActivity() {
 
     var imageUri: String? = null
     lateinit var resultTextView: TextView
+    lateinit var resultImageView: ImageView
     var resultText: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +31,7 @@ class ImageProcessActivity : AppCompatActivity() {
         setContentView(R.layout.activity_image_process)
         imageUri = intent.getStringExtra("imageUri")
         resultTextView = findViewById(R.id.tvResult)
+        resultImageView = findViewById(R.id.imageFullView)
         LoadImage();
         SetTopButtons();
         SetFunctionButtons();
@@ -72,7 +76,9 @@ class ImageProcessActivity : AppCompatActivity() {
         }
 
         btnLabel.setOnClickListener {
-            Toast.makeText(this, "Labeling...", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                processLabeling()
+            }
         }
 
         btnTextReg.setOnClickListener  {
@@ -83,6 +89,53 @@ class ImageProcessActivity : AppCompatActivity() {
 
         btnQrScan.setOnClickListener {
             Toast.makeText(this, "Scanning...", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    suspend fun processObjectDetection() = lifecycleScope.launch(Dispatchers.IO) {
+        val bitmapImage = Glide.with(this@ImageProcessActivity)
+            .asBitmap()
+            .load(imageUri)
+            .submit()
+            .get()
+
+        var resultBitmap : Bitmap? = null
+        // Triển khai ObjectDetectionAnalyzer
+        // resultBitmap = ObjectDetectionAnalyzer().analyzeBitmapImage(bitmapImage)
+
+        Log.d("TextAnalyzer: ", resultText!!)
+        withContext(Dispatchers.Main) {
+            if (resultBitmap != null) {
+                resultImageView.setImageBitmap(resultBitmap)
+            } else {
+                resultTextView.setText("No object detected")
+            }
+        }
+    }
+
+    suspend fun processLabeling() = lifecycleScope.launch(Dispatchers.IO) {
+        val bitmapImage = Glide.with(this@ImageProcessActivity)
+            .asBitmap()
+            .load(imageUri)
+            .submit()
+            .get()
+
+        resultText = "No label found"
+        Log.d("LABELING", "analyzeBitmapImage: ${resultText}")
+        resultText = ImageLabelAnalyzer().analyzeBitmapImage(bitmapImage)
+        Log.d("LABELING1", "analyzeBitmapImage: ${resultText}")
+
+        Log.d("TextAnalyzer: ", resultText!!)
+        withContext(Dispatchers.Main) {
+            var maxLengthSize = 50;
+
+            if (resultText!!.length < maxLengthSize) {
+                resultTextView.setText(resultText + "...")
+            } else {
+                resultTextView.setText(resultText!!.substring(0, maxLengthSize-3) + "...")
+            }
+
+            Log.d("LABELING", "resultText: $resultText")
         }
     }
 

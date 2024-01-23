@@ -55,7 +55,7 @@ class ImageLabelAnalyzer(
         }
     }
 
-    suspend fun analyzeBitmapImage(inputImage: Bitmap): String = coroutineScope {
+    suspend fun analyzeFromBitmap(inputImage: Bitmap): String = coroutineScope {
         val resultText = CompletableDeferred<String>()
 
         Log.d("LABELING", "analyzeBitmapImage: ${inputImage.height} x ${inputImage.width}")

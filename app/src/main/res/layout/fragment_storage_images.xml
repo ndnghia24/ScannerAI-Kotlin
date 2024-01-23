@@ -13,6 +13,7 @@
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/rounded"
             android:paddingBottom="10dp">
 
             <TextView
@@ -21,10 +22,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
                 android:text="Thư viện ảnh"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="25dp" />
 
             <TextView
@@ -33,10 +34,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginEnd="20dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
-                android:text="Xem tất cả"
-                android:textColor="@color/black"
+                android:text=""
+                android:textColor="@color/white"
                 android:textSize="25dp" />
 
         </RelativeLayout>

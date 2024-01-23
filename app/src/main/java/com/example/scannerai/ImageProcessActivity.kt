@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.scannerai.AnalyzeFeatures.analyzer.ImageLabelAnalyzer
+import com.example.scannerai.AnalyzeFeatures.analyzer.ObjectDetectorAnalyzer
 import com.example.scannerai.AnalyzeFeatures.analyzer.TextAnalyzer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -77,7 +78,9 @@ class ImageProcessActivity : AppCompatActivity() {
         }
 
         btnDetect.setOnClickListener {
-            Toast.makeText(this, "Detecting...", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                processObjectDetection()
+            }
         }
 
         btnLabel.setOnClickListener {
@@ -107,13 +110,18 @@ class ImageProcessActivity : AppCompatActivity() {
             .get()
 
         var resultBitmap : Bitmap? = null
-        // Triển khai ObjectDetectionAnalyzer
-        // resultBitmap = ObjectDetectionAnalyzer().analyzeBitmapImage(bitmapImage)
+        var count = 0
 
-        Log.d("TextAnalyzer: ", resultText!!)
+        do {
+            val result = ObjectDetectorAnalyzer().analyzeFromBitmap(bitmapImage)
+            resultBitmap = result.first
+            count = result.second
+        } while (count == 0)
+
         withContext(Dispatchers.Main) {
             if (resultBitmap != null) {
                 resultImageView.setImageBitmap(resultBitmap)
+                resultTextView.setText("No bounding box -> No object detected")
             } else {
                 resultTextView.setText("No object detected")
             }
@@ -129,11 +137,13 @@ class ImageProcessActivity : AppCompatActivity() {
 
         resultText = "No label found"
         Log.d("LABELING", "analyzeBitmapImage: ${resultText}")
-        resultText = ImageLabelAnalyzer().analyzeBitmapImage(bitmapImage)
+        resultText = ImageLabelAnalyzer().analyzeFromBitmap(bitmapImage)
         Log.d("LABELING1", "analyzeBitmapImage: ${resultText}")
 
         Log.d("TextAnalyzer: ", resultText!!)
         withContext(Dispatchers.Main) {
+            if (resultText == "") resultText = "Cannot detect any label"
+
             var maxLengthSize = 50;
 
             if (resultText!!.length < maxLengthSize) {
@@ -154,7 +164,7 @@ class ImageProcessActivity : AppCompatActivity() {
             .get()
 
         resultText = "No text found"
-        resultText = TextAnalyzer().analyzeBitmapImage(bitmapImage)
+        resultText = TextAnalyzer().analyzeFromBitmap(bitmapImage)
 
         Log.d("TextAnalyzer: ", resultText!!)
         withContext(Dispatchers.Main) {

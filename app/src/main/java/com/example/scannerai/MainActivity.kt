@@ -132,6 +132,18 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                                 previewView,
                                 DeviceMetric.PREVIEWVIEWMAXHEIGHT
                             )
+                            findViewById<TextView>(R.id.heading).setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.white
+                                )
+                            )
+                            findViewById<TextView>(R.id.viewAll).setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.white
+                                )
+                            )
                         } else {
                             Animation.ChangePreviewViewHeight(
                                 previewView,
@@ -140,6 +152,18 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                             if (dataView != null) {
                                 (dataView as TextView).text = "Regconizing Text ..."
                             }
+                            findViewById<TextView>(R.id.heading).setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.black
+                                )
+                            )
+                            findViewById<TextView>(R.id.viewAll).setTextColor(
+                                ContextCompat.getColor(
+                                    this@MainActivity,
+                                    R.color.black
+                                )
+                            )
                         }
                         return true
                     }

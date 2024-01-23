@@ -70,7 +70,7 @@ class TextAnalyzer(
         }
     }
 
-    suspend fun analyzeBitmapImage(inputImage: Bitmap): String = coroutineScope {
+    suspend fun analyzeFromBitmap(inputImage: Bitmap): String = coroutineScope {
         val resultText = CompletableDeferred<String>()
 
         Log.d("TEXT_RECOGNITION", "analyzeBitmapImage: ${inputImage.height} x ${inputImage.width}")

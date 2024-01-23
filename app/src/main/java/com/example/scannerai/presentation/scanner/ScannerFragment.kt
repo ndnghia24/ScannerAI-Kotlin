@@ -33,6 +33,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.google.cloud.translate.Translate
+import com.google.cloud.translate.TranslateOptions
+import com.google.cloud.translate.Translation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 private const val SMOOTH_DELAY = 0.5
 
 @AndroidEntryPoint
@@ -204,12 +210,25 @@ class ScannerFragment: Fragment() {
             detectedResult.getOrNull()?.let {
                 Log.d("ScannerFragment", "Detected: ${it.label}, ${frame.frame}, ${it.centerCoordinate}")
                 it.label = it.label.replace("\n", " ")
+                // Translate text
+                it.label = translateText("vi", it.label)
                 return DetectedText(it, frame.frame)
             }
             return null
         }
         cameraImage?.close()
         return null
+    }
+
+    suspend fun translateText(targetLanguage: String, textToTranslate: String): String {
+        return withContext(Dispatchers.IO) {
+            val translate: Translate = TranslateOptions.getDefaultInstance().service
+            val translation: Translation = translate.translate(
+                textToTranslate,
+                Translate.TranslateOption.targetLanguage(targetLanguage)
+            )
+            translation.translatedText
+        }
     }
 
     private fun hitTestDetectedObject(detectedText: DetectedText, frame: ArFrame): HitTestResult? {

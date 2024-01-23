@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ImageFormat
 import android.graphics.Paint
@@ -31,6 +32,9 @@ import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class ObjectDetectorAnalyzer : ImageAnalysis.Analyzer {
     private var graphicOverlay: GraphicOverlay? = null
@@ -113,6 +117,48 @@ class ObjectDetectorAnalyzer : ImageAnalysis.Analyzer {
                     // [END_EXCLUDE]
                 }
         }
+    }
+
+    suspend fun analyzeFromBitmap(bitmap: Bitmap): Pair<Bitmap, Int> = suspendCoroutine { continuation ->
+        val image = InputImage.fromBitmap(bitmap, 0)
+        val res = bitmap.copy(bitmap.getConfig(), true)
+        val canvas = Canvas(res)
+        var count = 0
+
+        objectDetector.process(image)
+            .addOnSuccessListener { detectedObjects: List<DetectedObject> ->
+                count = detectedObjects.size
+                Log.d("OBJECT NUMBER", "Count = " + count)
+
+                for (detectedObject in detectedObjects) {
+                    val boundingBox = detectedObject.boundingBox
+                    val paint1 = Paint().apply {
+                        color = Color.RED
+                        style = Paint.Style.STROKE
+                        strokeWidth = 8.0f
+                    }
+                    val paint2 = Paint().apply {
+                        color = Color.WHITE
+                        style = Paint.Style.FILL
+                        strokeWidth = 3.0f
+                        textSize = 50f
+                    }
+                    if (detectedObject.labels.isNotEmpty()) {
+                        canvas.drawRect(boundingBox, paint1)
+                        canvas.drawText(
+                            detectedObject.labels[0].text,
+                            boundingBox.left.toFloat(),
+                            boundingBox.top.toFloat(),
+                            paint2
+                        )
+                    }
+                }
+                continuation.resume(Pair(res, count))
+            }
+            .addOnFailureListener { e: Exception ->
+                Log.d("LABEL 2", "Format = " + e.message)
+                continuation.resumeWithException(e)
+            }
     }
 
     fun toBitmap(mediaImage: Image?): Bitmap {

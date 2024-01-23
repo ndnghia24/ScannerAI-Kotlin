@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/preview_nav_graph"
+    app:startDestination="@id/orientationFragment">
+
+    <fragment
+        android:id="@+id/scannerFragment"
+        android:name="com.example.scannerai.presentation.scanner.ScannerFragment"
+        android:label="fragment_scanner"
+        tools:layout="@layout/fragment_scanner" >
+        <action
+            android:id="@+id/action_scannerFragment_to_confirmFragment"
+            app:destination="@id/confirmFragment"
+            app:enterAnim="@anim/slide_up"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@anim/slide_down"
+            app:popUpToInclusive="false" />
+        <argument
+            android:name="scanType"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/confirmFragment"
+        android:name="com.example.scannerai.presentation.confirmer.ConfirmFragment"
+        android:label="fragment_confirm"
+        tools:layout="@layout/fragment_confirm" >
+        <argument android:name="confirmType"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/orientationFragment"
+        android:name="com.example.scannerai.presentation.orientating.OrientationFragment"
+        android:label="fragment_orientation"
+        tools:layout="@layout/fragment_orientation" >
+        <action
+            android:id="@+id/action_orientationFragment_to_scannerFragment"
+            app:destination="@id/scannerFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out"
+            app:popUpTo="@id/preview_nav_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_orientationFragment"
+        app:destination="@id/orientationFragment"
+        app:enterAnim="@android:anim/fade_in"
+        app:exitAnim="@android:anim/fade_out"
+        app:popEnterAnim="@android:anim/fade_in"
+        app:popExitAnim="@android:anim/fade_out" />
+</navigation>

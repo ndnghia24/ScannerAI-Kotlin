@@ -1,0 +1,15 @@
+<resources>
+    <string name="scan">Point the camera at the text</string>
+    <string name="orientate">Move the phone while pointing it at the text</string>
+    <string name="confirm_place">Text was placed correctly?</string>
+    <string name="incorrect_number">Can`t find that number</string>
+    <string name="install_arcode">Please, install ARCore</string>
+    <string name="update_arcode">Please, update ARCore</string>
+    <string name="update_app">Please, update this app</string>
+    <string name="no_arcore_support">This device does not support AR</string>
+    <string name="camera_not_available">Camera not available. Try restarting the app</string>
+    <string name="failed_to_create_session">Failed to create AR session</string>
+    <string name="provide_camera_permission">Please, provide the camera permission</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
+</resources>

@@ -35,7 +35,7 @@
         <item name="postSplashScreenTheme">@style/Theme.FESTUNavigator</item>
     </style>
 
-    <style name="Base.Theme.ScannerAI" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.ScannerAI" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/my_light_primary</item>
     </style>

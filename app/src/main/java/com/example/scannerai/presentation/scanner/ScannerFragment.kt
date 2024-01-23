@@ -211,7 +211,7 @@ class ScannerFragment: Fragment() {
                 Log.d("ScannerFragment", "Detected: ${it.label}, ${frame.frame}, ${it.centerCoordinate}")
                 it.label = it.label.replace("\n", " ")
                 // Translate text
-                it.label = translateText("vi", it.label)
+                // it.label = translateText("vi", it.label)
                 return DetectedText(it, frame.frame)
             }
             return null

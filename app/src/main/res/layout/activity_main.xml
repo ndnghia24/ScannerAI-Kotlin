@@ -94,7 +94,7 @@
                     android:text="Regconizing Text..."
                     android:textSize="20sp"
                     android:layout_marginLeft="10dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_marginTop="55dp"
                     android:layout_marginRight="10dp" />
             </ScrollView>
 

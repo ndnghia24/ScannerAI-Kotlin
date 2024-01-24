@@ -1,5 +1,8 @@
 package com.example.scannerai.AnalyzeFeatures.analyzer
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
@@ -7,20 +10,24 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.view.PreviewView
+import androidx.core.content.ContextCompat.getSystemService
 import com.example.scannerai.AnalyzeFeatures.helper.Animation.ChangePreviewViewHeight
 import com.example.scannerai.AnalyzeFeatures.helper.DeviceMetric
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 
 class TextAnalyzer(
+    private val context: Context? = null,
     var textView: TextView? = null,
     var startReg: Button? = null,
     var preview: PreviewView? = null) :
@@ -54,12 +61,19 @@ class TextAnalyzer(
         if (mediaImage != null) {
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             recognizer.process(image)
-                .addOnSuccessListener { text -> // Task completed successfully
+                .addOnSuccessListener { text ->
                     val resultText = text.text
-                    mainHandler.post { // Update TextView
+                    mainHandler.post {
                         textView?.text = resultText
                     }
                     preview?.let { ChangePreviewViewHeight(it, DeviceMetric.PREVIEWVVIEWDEFAULTHEIGHT) }
+
+                    // Copy to clipboard
+                    val clipboard = context?.let { getSystemService(it, ClipboardManager::class.java) }
+                    val clip = ClipData.newPlainText("Copied Text", resultText)
+                    clipboard?.setPrimaryClip(clip)
+                    Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+
                     disableAnalysis()
                 }
                 .addOnFailureListener { e -> Log.d("TEXT_RECOGNITION", "Detection failed", e) }

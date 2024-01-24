@@ -3,12 +3,8 @@ package com.example.scannerai
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.ContentValues
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.hardware.camera2.CameraAccessException
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraManager
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
@@ -47,7 +43,6 @@ import com.example.scannerai.AnalyzeFeatures.helper.GraphicOverlay
 import com.example.scannerai.presentation.TranslateARActivity
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
-import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), OnOptionClickListener {
     var ImagesList: FrameLayout? = null
@@ -151,18 +146,7 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                                     previewView,
                                     DeviceMetric.PREVIEWVIEWMAXHEIGHT
                                 )
-                                findViewById<TextView>(R.id.heading).setTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.white
-                                    )
-                                )
-                                findViewById<TextView>(R.id.viewAll).setTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.white
-                                    )
-                                )
+                                changeGaleryHeadingColor(R.color.white)
                             } else {
                                 Animation.ChangePreviewViewHeight(
                                     previewView,
@@ -170,19 +154,9 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                                 )
                                 if (dataView != null) {
                                     (dataView as TextView).text = "Regconizing Text ..."
+                                    changeGaleryHeadingColor(R.color.black)
                                 }
-                                findViewById<TextView>(R.id.heading).setTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.black
-                                    )
-                                )
-                                findViewById<TextView>(R.id.viewAll).setTextColor(
-                                    ContextCompat.getColor(
-                                        this@MainActivity,
-                                        R.color.black
-                                    )
-                                )
+                                changeGaleryHeadingColor(R.color.black)
                             }
                             return true
                         }
@@ -192,6 +166,12 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                 return false
             }
         })
+    }
+
+    private fun changeGaleryHeadingColor(color: Int) {
+        val colorResource = ContextCompat.getColor(this@MainActivity, color)
+        findViewById<TextView>(R.id.heading).setTextColor(colorResource)
+        findViewById<TextView>(R.id.viewAll).setTextColor(colorResource)
     }
 
     private fun SetPreviewViewHeightChangeListener(previewView: PreviewView?) {
@@ -379,7 +359,7 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                 val btnRegText = findViewById<Button>(R.id.btnTextReg)
                 val regText = findViewById<TextView>(R.id.tvRegText)
                 previewView?.let {
-                    imageAnalyzer = TextAnalyzer(regText, btnRegText, it)
+                    imageAnalyzer = TextAnalyzer(this, regText, btnRegText, it)
                 }
                 previewView?.let {
                     Animation.ChangePreviewViewHeight(it, currentHeight)

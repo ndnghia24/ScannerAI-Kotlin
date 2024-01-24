@@ -90,10 +90,8 @@ class PreviewFragment : Fragment() {
                 onDrawFrame(frame)
             }
             configureSession { arSession, config ->
-                //config.depthMode = Config.DepthMode.AUTOMATIC
-                config.depthMode = Config.DepthMode.DISABLED
-                //config.focusMode = Config.FocusMode.AUTO
-                config.focusMode = Config.FocusMode.FIXED
+                config.depthMode = Config.DepthMode.AUTOMATIC
+                config.focusMode = Config.FocusMode.AUTO
                 //config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
                 config.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 config.instantPlacementMode = Config.InstantPlacementMode.DISABLED

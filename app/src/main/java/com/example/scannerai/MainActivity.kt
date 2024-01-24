@@ -47,6 +47,7 @@ import com.example.scannerai.AnalyzeFeatures.helper.GraphicOverlay
 import com.example.scannerai.presentation.TranslateARActivity
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
+import kotlin.math.abs
 
 class MainActivity : AppCompatActivity(), OnOptionClickListener {
     var ImagesList: FrameLayout? = null
@@ -56,6 +57,8 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
     var topper: ConstraintLayout? = null
     var scrollView: ScrollView? = null
     private var imageAnalyzer: ImageAnalysis.Analyzer? = null
+
+    var adapter: RecyclerView.Adapter<*>? = null
 
     @SuppressLint("RestrictedApi")
     private val imageAnalysis = ImageAnalysis.Builder()
@@ -117,53 +120,71 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
 
     private fun SetPreviewViewHeightChangeListener(previewView: PreviewView?, dataView: View?) {
         previewView!!.setOnTouchListener(object : OnTouchListener {
+            private var pointX0 = 0f
             private var pointY0 = 0f
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        pointX0 = event.x
                         pointY0 = event.y
                         return true
                     }
 
                     MotionEvent.ACTION_MOVE -> {
+                        val deltaX = event.x - pointX0
                         val deltaY = event.y - pointY0
-                        if (deltaY > 0) {
-                            Animation.ChangePreviewViewHeight(
-                                previewView,
-                                DeviceMetric.PREVIEWVIEWMAXHEIGHT
-                            )
-                            findViewById<TextView>(R.id.heading).setTextColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.white
-                                )
-                            )
-                            findViewById<TextView>(R.id.viewAll).setTextColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.white
-                                )
-                            )
-                        } else {
-                            Animation.ChangePreviewViewHeight(
-                                previewView,
-                                DeviceMetric.PREVIEWVVIEWDEFAULTHEIGHT
-                            )
-                            if (dataView != null) {
-                                (dataView as TextView).text = "Regconizing Text ..."
+
+                        if (deltaX*deltaX > deltaY*deltaY) {
+                            if (deltaX > 0) {
+                                (adapter as OptionsAdapter).swipeRightOptions()
+                            } else {
+                                (adapter as OptionsAdapter).swipeLeftOptions()
                             }
-                            findViewById<TextView>(R.id.heading).setTextColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.black
+                            (adapter as OptionsAdapter).notifyDataSetChanged()
+                            onOptionClick((adapter as OptionsAdapter).getSelectedPosition())
+                            Log.d("TAGG", "${(adapter as OptionsAdapter).getSelectedPosition()}")
+
+                            return true
+                        } else {
+                            if (deltaY > 0) {
+                                Animation.ChangePreviewViewHeight(
+                                    previewView,
+                                    DeviceMetric.PREVIEWVIEWMAXHEIGHT
                                 )
-                            )
-                            findViewById<TextView>(R.id.viewAll).setTextColor(
-                                ContextCompat.getColor(
-                                    this@MainActivity,
-                                    R.color.black
+                                findViewById<TextView>(R.id.heading).setTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.white
+                                    )
                                 )
-                            )
+                                findViewById<TextView>(R.id.viewAll).setTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.white
+                                    )
+                                )
+                            } else {
+                                Animation.ChangePreviewViewHeight(
+                                    previewView,
+                                    DeviceMetric.PREVIEWVVIEWDEFAULTHEIGHT
+                                )
+                                if (dataView != null) {
+                                    (dataView as TextView).text = "Regconizing Text ..."
+                                }
+                                findViewById<TextView>(R.id.heading).setTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.black
+                                    )
+                                )
+                                findViewById<TextView>(R.id.viewAll).setTextColor(
+                                    ContextCompat.getColor(
+                                        this@MainActivity,
+                                        R.color.black
+                                    )
+                                )
+                            }
+                            return true
                         }
                         return true
                     }
@@ -175,17 +196,31 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
 
     private fun SetPreviewViewHeightChangeListener(previewView: PreviewView?) {
         previewView!!.setOnTouchListener(object : OnTouchListener {
+            private var pointX0 = 0f
             private var pointY0 = 0f
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        pointX0 = event.x
                         pointY0 = event.y
                         return true
                     }
 
                     MotionEvent.ACTION_MOVE -> {
+                        val deltaX = event.x - pointX0
                         val deltaY = event.y - pointY0
-                        if (deltaY > 0) {
+
+                        if (deltaX*deltaX > deltaY*deltaY) {
+                            if (deltaX > 0) {
+                                (adapter as OptionsAdapter).swipeRightOptions()
+                            } else {
+                                (adapter as OptionsAdapter).swipeLeftOptions()
+                            }
+                            (adapter as OptionsAdapter).notifyDataSetChanged()
+                            onOptionClick((adapter as OptionsAdapter).getSelectedPosition())
+                            Log.d("TAGG", "${(adapter as OptionsAdapter).getSelectedPosition()}")
+
+                            return true
                         } else {
                             Toast.makeText(
                                 this@MainActivity,
@@ -214,7 +249,7 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
     }
 
     private fun SetUpOptionsList() {
-        val adapter: RecyclerView.Adapter<*> = OptionsAdapter()
+        adapter = OptionsAdapter(optionsList)
         (adapter as OptionsAdapter).setOnOptionClickListener(this)
         optionsList!!.adapter = adapter
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)

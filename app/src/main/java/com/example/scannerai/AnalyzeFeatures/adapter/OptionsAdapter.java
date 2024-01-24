@@ -16,11 +16,27 @@ import java.util.List;
 
 public class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.ViewHolder>{
     List<String> options = new ArrayList<>();
+    RecyclerView recyclerView;
     int selectedPosition = 0;
+
+    public void swipeLeftOptions() {
+        if (selectedPosition < options.size() - 1) {
+            selectedPosition++;
+        }
+        recyclerView.scrollToPosition(selectedPosition);
+    }
+
+    public void swipeRightOptions() {
+        if (selectedPosition > 0) {
+            selectedPosition--;
+        }
+        recyclerView.scrollToPosition(selectedPosition);
+    }
 
     private OnOptionClickListener onOptionClickListener;
 
-    public OptionsAdapter() {
+    public OptionsAdapter(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
         options.add("Object Detect GG-MLKIT");
         options.add("Image Label GG-MLKIT");
         options.add("Text Recognise GG-MLKIT");

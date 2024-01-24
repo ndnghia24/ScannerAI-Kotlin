@@ -1,6 +1,8 @@
 package com.example.scannerai.presentation.scanner
 
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,9 +35,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-import com.google.cloud.translate.Translate
-import com.google.cloud.translate.TranslateOptions
-import com.google.cloud.translate.Translation
+import com.google.mlkit.nl.translate.TranslateLanguage
+import com.google.mlkit.nl.translate.TranslatorOptions
+import com.google.mlkit.nl.translate.Translation
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -211,7 +214,11 @@ class ScannerFragment: Fragment() {
                 Log.d("ScannerFragment", "Detected: ${it.label}, ${frame.frame}, ${it.centerCoordinate}")
                 it.label = it.label.replace("\n", " ")
                 // Translate text
-                // it.label = translateText("vi", it.label)
+                val translatedText = translateText(it.label, TranslateLanguage.ENGLISH, TranslateLanguage.VIETNAMESE)
+                it.label = translatedText
+
+                Log.d("ScannerFragment", "Translated: ${it.label}")
+
                 return DetectedText(it, frame.frame)
             }
             return null
@@ -220,14 +227,39 @@ class ScannerFragment: Fragment() {
         return null
     }
 
-    suspend fun translateText(targetLanguage: String, textToTranslate: String): String {
-        return withContext(Dispatchers.IO) {
-            val translate: Translate = TranslateOptions.getDefaultInstance().service
-            val translation: Translation = translate.translate(
-                textToTranslate,
-                Translate.TranslateOption.targetLanguage(targetLanguage)
-            )
-            translation.translatedText
+    fun isNetworkAvailable(context: Context): Boolean {
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return when {
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+            // for other device how are able to connect with Ethernet
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+            // for check internet over Bluetooth
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) -> true
+            else -> false
+        }
+    }
+
+    suspend fun translateText(text: String, sourceLanguageCode: String, targetLanguageCode: String): String {
+        if (!isNetworkAvailable(requireContext())) {
+            return "No internet connection"
+        }
+        val options = TranslatorOptions.Builder()
+            .setSourceLanguage(sourceLanguageCode)
+            .setTargetLanguage(targetLanguageCode)
+            .build()
+
+        val translator = Translation.getClient(options)
+
+        return try {
+            translator.downloadModelIfNeeded().await()
+            translator.translate(text).await()
+        } catch (e: Exception) {
+            "Translation failed: ${e.message}"
+        } finally {
+            translator.close()
         }
     }
 

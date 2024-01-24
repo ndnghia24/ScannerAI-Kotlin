@@ -77,20 +77,19 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
         SetUpOptionsList()
         addFragment(StorageImagesFragment())
         SetPreviewViewHeight()
-        imageAnalyzer = ObjectDetectorAnalyzer()
-        val topper_child = LayoutInflater.from(this).inflate(R.layout.object_detector, null)
+        val topper_child = LayoutInflater.from(this).inflate(R.layout.image_label, null)
         Constraint.setConstaintToParent(topper_child)
         (topper as ConstraintLayout).addView(topper_child, 0)
+        val label = findViewById<TextView>(R.id.label)
         previewView = findViewById(R.id.previewView)
-        val graphicOverlay = findViewById<GraphicOverlay>(R.id.graphicOverlay)
-        (imageAnalyzer as ObjectDetectorAnalyzer).setGraphicOverlay(graphicOverlay)
-        (imageAnalyzer as ObjectDetectorAnalyzer).setPreviewView(previewView)
-        SetPreviewViewHeightChangeListener(previewView)
+        imageAnalyzer = ImageLabelAnalyzer(label)
+
+        SetPreviewViewHeightChangeListener(previewView,null)
         previewView?.let {
-            Animation.ChangePreviewViewHeight(it, DeviceMetric.PREVIEWVIEWMAXHEIGHT)
+            Animation.ChangePreviewViewHeight(it, DeviceMetric.PREVIEWVVIEWDEFAULTHEIGHT)
         }
         if (!hasCameraUsingPermission()) requestCameraUsingPermission() else StartCamera(previewView)
-        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), imageAnalyzer as ObjectDetectorAnalyzer)
+        imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), imageAnalyzer as ImageLabelAnalyzer)
     }
 
     override fun onDestroy() {
@@ -314,26 +313,6 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                 scrollView!!.visibility = View.GONE
                 imageAnalysis.clearAnalyzer()
                 topper!!.removeViewAt(0)
-                imageAnalyzer = ObjectDetectorAnalyzer()
-                topper_child = LayoutInflater.from(this).inflate(R.layout.object_detector, null)
-                Constraint.setConstaintToParent(topper_child)
-                topper!!.addView(topper_child, 0)
-                previewView = findViewById(R.id.previewView)
-                val graphicOverlay = findViewById<GraphicOverlay>(R.id.graphicOverlay)
-                (imageAnalyzer as ObjectDetectorAnalyzer).setGraphicOverlay(graphicOverlay)
-                (imageAnalyzer as ObjectDetectorAnalyzer).setPreviewView(previewView)
-                previewView?.let {
-                    Animation.ChangePreviewViewHeight(it, DeviceMetric.PREVIEWVIEWMAXHEIGHT)
-                }
-                SetPreviewViewHeightChangeListener(previewView)
-                StartCamera(previewView)
-                imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), imageAnalyzer as ObjectDetectorAnalyzer)
-            }
-
-            1 -> {
-                scrollView!!.visibility = View.GONE
-                imageAnalysis.clearAnalyzer()
-                topper!!.removeViewAt(0)
                 topper_child = LayoutInflater.from(this).inflate(R.layout.image_label, null)
                 Constraint.setConstaintToParent(topper_child)
                 topper!!.addView(topper_child, 0)
@@ -348,7 +327,7 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                 imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), imageAnalyzer as ImageLabelAnalyzer)
             }
 
-            2 -> {
+            1 -> {
                 scrollView!!.visibility = View.VISIBLE
                 imageAnalysis.clearAnalyzer()
                 topper!!.removeViewAt(0)
@@ -367,6 +346,26 @@ class MainActivity : AppCompatActivity(), OnOptionClickListener {
                 SetPreviewViewHeightChangeListener(previewView, regText)
                 StartCamera(previewView)
                 imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), imageAnalyzer as TextAnalyzer)
+            }
+
+            2 -> {
+                scrollView!!.visibility = View.GONE
+                imageAnalysis.clearAnalyzer()
+                topper!!.removeViewAt(0)
+                imageAnalyzer = ObjectDetectorAnalyzer()
+                topper_child = LayoutInflater.from(this).inflate(R.layout.object_detector, null)
+                Constraint.setConstaintToParent(topper_child)
+                topper!!.addView(topper_child, 0)
+                previewView = findViewById(R.id.previewView)
+                val graphicOverlay = findViewById<GraphicOverlay>(R.id.graphicOverlay)
+                (imageAnalyzer as ObjectDetectorAnalyzer).setGraphicOverlay(graphicOverlay)
+                (imageAnalyzer as ObjectDetectorAnalyzer).setPreviewView(previewView)
+                previewView?.let {
+                    Animation.ChangePreviewViewHeight(it, DeviceMetric.PREVIEWVIEWMAXHEIGHT)
+                }
+                SetPreviewViewHeightChangeListener(previewView)
+                StartCamera(previewView)
+                imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), imageAnalyzer as ObjectDetectorAnalyzer)
             }
 
             3 -> {}

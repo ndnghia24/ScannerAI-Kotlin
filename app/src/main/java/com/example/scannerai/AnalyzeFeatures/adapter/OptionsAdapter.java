@@ -37,9 +37,9 @@ public class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.ViewHold
 
     public OptionsAdapter(RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
-        options.add("Object Detect GG-MLKIT");
         options.add("Image Label GG-MLKIT");
         options.add("Text Recognise GG-MLKIT");
+        options.add("Object Detect GG-MLKIT");
     }
 
     public interface OnOptionClickListener {

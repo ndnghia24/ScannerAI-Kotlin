@@ -111,17 +111,22 @@ class ImageProcessActivity : AppCompatActivity() {
 
         var resultBitmap : Bitmap? = null
         var count = 0
+        var tryTime = 0
 
         do {
             val result = ObjectDetectorAnalyzer().analyzeFromBitmap(bitmapImage)
             resultBitmap = result.first
             count = result.second
-        } while (count == 0)
+            tryTime++
+        } while (count == 0 && tryTime < 100)
 
         withContext(Dispatchers.Main) {
             if (resultBitmap != null) {
                 resultImageView.setImageBitmap(resultBitmap)
-                resultTextView.setText("No bounding box -> No object detected")
+                if (count == 0)
+                    resultTextView.setText("No bounding box -> No object detected")
+                else
+                    resultTextView.setText("Number of objects detected: $count")
             } else {
                 resultTextView.setText("No object detected")
             }

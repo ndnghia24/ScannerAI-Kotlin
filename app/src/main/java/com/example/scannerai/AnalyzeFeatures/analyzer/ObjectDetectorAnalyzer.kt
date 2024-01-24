@@ -127,11 +127,11 @@ class ObjectDetectorAnalyzer : ImageAnalysis.Analyzer {
 
         objectDetector.process(image)
             .addOnSuccessListener { detectedObjects: List<DetectedObject> ->
-                count = detectedObjects.size
                 Log.d("OBJECT NUMBER", "Count = " + count)
 
                 for (detectedObject in detectedObjects) {
                     val boundingBox = detectedObject.boundingBox
+                    Log.d("BOUNDING BOX", "Box = " + boundingBox.toString())
                     val paint1 = Paint().apply {
                         color = Color.RED
                         style = Paint.Style.STROKE
@@ -144,6 +144,7 @@ class ObjectDetectorAnalyzer : ImageAnalysis.Analyzer {
                         textSize = 50f
                     }
                     if (detectedObject.labels.isNotEmpty()) {
+                        count++
                         canvas.drawRect(boundingBox, paint1)
                         canvas.drawText(
                             detectedObject.labels[0].text,
